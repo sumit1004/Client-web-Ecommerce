@@ -2,10 +2,10 @@ import { categories, products } from '../data/catalog.js';
 import { apiClient, safeRequest } from './apiClient.js';
 
 export const catalogService = {
-  getCategories: () => safeRequest(() => apiClient.get('/categories'), categories),
+  getCategories: (params = {}) => safeRequest(() => apiClient.get('/categories', { params }), categories),
   getCategory: async (slug) => {
-    const list = await catalogService.getCategories();
-    return list.find((category) => category.slug === slug);
+    const res = await safeRequest(() => apiClient.get(`/categories/slug/${slug}`));
+    return res;
   },
   getProducts: (params = {}) => {
     const filtered = products.filter((product) => {

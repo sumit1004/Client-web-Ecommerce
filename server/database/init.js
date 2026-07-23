@@ -21,12 +21,25 @@ export async function initializeDatabase() {
     await tempPool.query(`CREATE DATABASE IF NOT EXISTS \`${env.database.database}\``);
     await tempPool.end();
 
-    const schemaPath = path.join(__dirname, 'migrations', '001_initial_schema.sql');
-    const sql = fs.readFileSync(schemaPath, 'utf8');
-    const statements = sql.split(';').filter((stmt) => stmt.trim() !== '');
+    const migrationsDir = path.join(__dirname, 'migrations');
+    const files = fs.readdirSync(migrationsDir)
+      .filter(f => f.endsWith('.sql'))
+      .sort(); // ensures 001 runs before 002
 
-    for (const stmt of statements) {
-      await pool.query(stmt);
+    for (const file of files) {
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      const statements = sql.split(';').filter((stmt) => stmt.trim() !== '');
+      for (const stmt of statements) {
+        try {
+          await pool.query(stmt);
+        } catch (stmtError) {
+          // Ignore duplicate column errors or foreign key drop errors if already applied
+          if (stmtError.code === 'ER_DUP_FIELDNAME' || stmtError.code === 'ER_CANT_DROP_FIELD_OR_KEY') {
+            continue;
+          }
+          console.error(`Migration error in ${file}:`, stmtError.message);
+        }
+      }
     }
     console.log('Database schema validated.');
   } catch (error) {

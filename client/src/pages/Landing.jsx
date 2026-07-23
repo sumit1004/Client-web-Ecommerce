@@ -11,7 +11,7 @@ import { business, heroImage } from '../constants/store.js';
 import { useCategories, useProducts } from '../hooks/useCatalog.js';
 
 export default function Landing() {
-  const { data: categoryData } = useCategories();
+  const { data: categoryData } = useCategories({ show_on_homepage: true });
   const { loading, data: productData } = useProducts({ featured: true });
   const categories = categoryData || [];
   const products = productData || [];

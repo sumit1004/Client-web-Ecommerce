@@ -18,8 +18,8 @@ export function useAsyncCatalog(loader, dependencies = []) {
   return state;
 }
 
-export function useCategories() {
-  return useAsyncCatalog(catalogService.getCategories, []);
+export function useCategories(params = {}) {
+  return useAsyncCatalog(() => catalogService.getCategories(params), [JSON.stringify(params)]);
 }
 
 export function useProducts(params = {}) {
