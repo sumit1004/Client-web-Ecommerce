@@ -17,7 +17,20 @@ import dashboardRoutes from './routes/dashboard.routes.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: env.clientUrl, credentials: true }));
+const allowedOrigins = env.nodeEnv === 'production' 
+  ? [env.clientUrl] 
+  : ['http://localhost:5173', 'http://localhost:5174', env.clientUrl];
+
+app.use(cors({ 
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }, 
+  credentials: true 
+}));
 app.use(compression());
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '1mb' }));

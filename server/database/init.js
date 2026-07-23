@@ -36,23 +36,36 @@ export async function initializeDatabase() {
 
 export async function seedAdmin(name, email, password) {
   try {
-    const [rows] = await pool.query('SELECT id FROM admins LIMIT 1');
+    if (!name || !email || !password) {
+      console.warn('[Seed] ADMIN_NAME, ADMIN_EMAIL, or ADMIN_PASSWORD missing in .env - admin not seeded.');
+      return;
+    }
+    console.log(`[Seed] Checking admin for: ${email}, password length: ${password.length}`);
+
+    const [rows] = await pool.query('SELECT id, password FROM admins WHERE email = ? LIMIT 1', [email]);
     if (rows.length === 0) {
-      if (!name || !email || !password) {
-        console.warn('Admin seed variables missing in environment. Admin not created.');
-        return;
-      }
+      // First boot — create default admin
       const hashedPassword = await bcrypt.hash(password, 12);
       const id = uuidv4();
       await pool.query(
         'INSERT INTO admins (id, name, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?)',
         [id, name, email, hashedPassword, 'admin', 'active']
       );
-      console.log(`Default admin created: ${email}`);
+      console.log(`[Seed] Default admin created: ${email}`);
     } else {
-      console.log('Admin account already exists.');
+      // Admin exists — verify hash matches current .env password
+      const existing = rows[0];
+      const matches = await bcrypt.compare(password, existing.password);
+      if (!matches) {
+        console.warn(`[Seed] Password hash mismatch detected for ${email}. Re-hashing with current .env password...`);
+        const newHash = await bcrypt.hash(password, 12);
+        await pool.query('UPDATE admins SET password = ? WHERE id = ?', [newHash, existing.id]);
+        console.log(`[Seed] Admin password re-hashed successfully.`);
+      } else {
+        console.log(`[Seed] Admin account verified OK: ${email}`);
+      }
     }
   } catch (error) {
-    console.error('Failed to seed admin:', error.message);
+    console.error('[Seed] Failed to seed/verify admin:', error.message);
   }
 }

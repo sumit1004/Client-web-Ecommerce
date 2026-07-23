@@ -20,8 +20,8 @@ export const authService = {
   },
   async me() {
     try {
-      const response = await apiClient.get('/auth/me');
-      return response.data?.data;
+      const response = await apiClient.get('/auth/session');
+      return response.data?.data || null;
     } catch {
       return null;
     }
@@ -30,5 +30,5 @@ export const authService = {
 
 export const demoAdminCredentials = {
   email: 'admin@pasandshowroom.com',
-  password: 'Admin@Pasand'
+  password: 'Admin@Pasand123'
 };
