@@ -1,7 +1,9 @@
 import { createContext, useContext, useMemo, useState } from 'react';
+import { authService } from '../services/authService.js';
 
 const CartContext = createContext(null);
 const SearchContext = createContext(null);
+const AuthContext = createContext(null);
 
 function getStoredCart() {
   try {
@@ -11,9 +13,18 @@ function getStoredCart() {
   }
 }
 
+function getStoredAdmin() {
+  try {
+    return JSON.parse(sessionStorage.getItem('adminSession') || 'null');
+  } catch {
+    return null;
+  }
+}
+
 export function AppProviders({ children }) {
   const [items, setItems] = useState(getStoredCart);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [admin, setAdmin] = useState(getStoredAdmin);
 
   const cart = useMemo(() => {
     const persist = (next) => {
@@ -44,13 +55,30 @@ export function AppProviders({ children }) {
   }, [items]);
 
   const search = useMemo(() => ({ open: searchOpen, setOpen: setSearchOpen }), [searchOpen]);
+  const auth = useMemo(() => ({
+    admin,
+    async login(credentials) {
+      const loggedInAdmin = await authService.login(credentials);
+      setAdmin(loggedInAdmin);
+      sessionStorage.setItem('adminSession', JSON.stringify(loggedInAdmin));
+      return loggedInAdmin;
+    },
+    async logout() {
+      await authService.logout();
+      setAdmin(null);
+      sessionStorage.removeItem('adminSession');
+    }
+  }), [admin]);
 
   return (
-    <CartContext.Provider value={cart}>
-      <SearchContext.Provider value={search}>{children}</SearchContext.Provider>
-    </CartContext.Provider>
+    <AuthContext.Provider value={auth}>
+      <CartContext.Provider value={cart}>
+        <SearchContext.Provider value={search}>{children}</SearchContext.Provider>
+      </CartContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
 export const useCart = () => useContext(CartContext);
 export const useSearch = () => useContext(SearchContext);
+export const useAuth = () => useContext(AuthContext);
