@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { authService } from '../services/authService.js';
 
 const CartContext = createContext(null);
@@ -25,6 +25,22 @@ export function AppProviders({ children }) {
   const [items, setItems] = useState(getStoredCart);
   const [searchOpen, setSearchOpen] = useState(false);
   const [admin, setAdmin] = useState(getStoredAdmin);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    async function initAuth() {
+      const realAdmin = await authService.me();
+      if (realAdmin) {
+        setAdmin(realAdmin);
+        sessionStorage.setItem('adminSession', JSON.stringify(realAdmin));
+      } else {
+        setAdmin(null);
+        sessionStorage.removeItem('adminSession');
+      }
+      setAuthLoading(false);
+    }
+    initAuth();
+  }, []);
 
   const cart = useMemo(() => {
     const persist = (next) => {
@@ -57,6 +73,7 @@ export function AppProviders({ children }) {
   const search = useMemo(() => ({ open: searchOpen, setOpen: setSearchOpen }), [searchOpen]);
   const auth = useMemo(() => ({
     admin,
+    loading: authLoading,
     async login(credentials) {
       const loggedInAdmin = await authService.login(credentials);
       setAdmin(loggedInAdmin);
@@ -68,7 +85,7 @@ export function AppProviders({ children }) {
       setAdmin(null);
       sessionStorage.removeItem('adminSession');
     }
-  }), [admin]);
+  }), [admin, authLoading]);
 
   return (
     <AuthContext.Provider value={auth}>

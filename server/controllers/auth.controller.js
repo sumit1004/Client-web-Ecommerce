@@ -1,6 +1,8 @@
 import { loginAdmin } from '../services/auth.service.js';
 import { env } from '../config/environment.js';
 import { ok } from '../utils/response.js';
+import { pool } from '../config/database.js';
+import jwt from 'jsonwebtoken';
 
 export async function login(req, res, next) {
   try {
@@ -22,7 +24,18 @@ export async function login(req, res, next) {
   }
 }
 
-export function logout(_req, res) {
+export async function logout(req, res) {
+  try {
+    const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      const decoded = jwt.verify(token, env.jwtSecret);
+      if (decoded && decoded.id) {
+        await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [decoded.id, 'Logout', JSON.stringify({ ip: 'server' })]);
+      }
+    }
+  } catch (err) {
+    // Ignore verification errors during logout
+  }
   res.clearCookie('token');
   ok(res, 'Logged out.');
 }

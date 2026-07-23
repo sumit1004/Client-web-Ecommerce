@@ -5,6 +5,10 @@ export function ProtectedRoute({ children }) {
   const auth = useAuth();
   const location = useLocation();
 
+  if (auth.loading) {
+    return <div className="page-loading">Checking authentication...</div>;
+  }
+
   if (!auth.admin) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
