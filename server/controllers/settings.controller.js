@@ -3,7 +3,7 @@ import { ok } from '../utils/response.js';
 
 export function getSettings(_req, res) {
   ok(res, 'Settings loaded.', {
-    businessName: '1964 Fashion Store',
+    businessName: 'Pasand Showroom',
     whatsapp: env.whatsappNumber,
     theme: { primary: '#111111', accent: '#C89B3C' }
   });

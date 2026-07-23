@@ -27,7 +27,7 @@ export default function Contact() {
 
   return (
     <main className="page">
-      <Seo title="Contact" description="Contact 1964 Fashion Store by phone, WhatsApp, email or store visit." />
+      <Seo title="Contact" description="Contact Pasand Showroom by phone, WhatsApp, email or store visit." />
       <section className="page-hero compact"><span className="eyebrow">Contact</span><h1>Speak directly with the store.</h1></section>
       <section className="section contact-layout">
         <div className="contact-info">

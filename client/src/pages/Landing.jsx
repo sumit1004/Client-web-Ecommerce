@@ -19,12 +19,12 @@ export default function Landing() {
 
   return (
     <main>
-      <Seo title="Premium Fashion Since 1964" description="Browse premium clothing collections and order through WhatsApp from a trusted family store established in 1964." />
+      <Seo title="Premium Fashion Since 1964" description="Pasand Showroom is a trusted clothing showroom established in 1964 offering premium fashion for Men, Women and Kids with easy WhatsApp ordering." />
       <section className="hero">
         <div className="hero-copy reveal">
-          <span className="eyebrow">Trusted clothing store since 1964</span>
+          <span className="eyebrow">Trusted Since 1964</span>
           <h1>Premium Fashion Since 1964</h1>
-          <p>Modern collections for every generation, selected by a family business trusted offline for decades. Browse online and order instantly through WhatsApp.</p>
+          <p>Discover timeless fashion for Men, Women and Kids from Pasand Showroom. Trusted by generations and now available online with easy WhatsApp ordering.</p>
           <div className="hero-actions">
             <Button as={Link} to="/products">Explore Collection</Button>
             <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp}`}><MessageCircle size={18} /> Shop on WhatsApp</Button>
@@ -79,11 +79,13 @@ export default function Landing() {
         <div>
           <span className="eyebrow">Our Legacy</span>
           <h2>Serving generations, now with a digital showroom.</h2>
-          <p>Established in 1964, the store grew through personal relationships, careful product selection and dependable service. This platform keeps that trust intact while making discovery, cart building and WhatsApp ordering effortless.</p>
+          <p>Pasand Showroom has been serving customers since 1964 with premium quality clothing for every generation. Our mission is to bring trusted fashion to customers through a modern digital shopping experience.</p>
           <div className="timeline">
-            <span><b>1964</b> Store established</span>
-            <span><b>2000s</b> Expanded family collections</span>
-            <span><b>Now</b> Premium online showroom</span>
+            <span><b>Established in 1964</b></span>
+            <span><b>Trusted for generations</b></span>
+            <span><b>Family business</b></span>
+            <span><b>Premium clothing showroom</b></span>
+            <span><b>Customer-first approach</b></span>
           </div>
         </div>
       </section>

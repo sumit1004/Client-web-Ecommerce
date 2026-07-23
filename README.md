@@ -1,4 +1,4 @@
-# 1964 Fashion Store
+# Pasand Showroom Ecommerce Platform
 
 Premium WhatsApp-first fashion ecommerce platform for an offline clothing business moving online.
 

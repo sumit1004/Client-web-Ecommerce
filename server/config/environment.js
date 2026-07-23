@@ -11,7 +11,7 @@ export const env = {
   database: {
     host: process.env.DATABASE_HOST || 'localhost',
     port: Number(process.env.DATABASE_PORT || 3306),
-    database: process.env.DATABASE_NAME || '1964_fashion_store',
+    database: process.env.DATABASE_NAME || 'pasand_showroom',
     user: process.env.DATABASE_USER || 'root',
     password: process.env.DATABASE_PASSWORD || ''
   },

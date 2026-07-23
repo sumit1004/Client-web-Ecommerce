@@ -14,9 +14,9 @@ export default function Admin() {
 
   return (
     <main className="admin-page">
-      <Seo title="Admin" description="Secure admin dashboard for managing products, categories, media and settings." />
+      <Seo title="Dashboard" description="Secure admin dashboard for managing products, categories, media and settings." />
       <aside>
-        <strong>1964 Admin</strong>
+        <strong>Pasand Showroom</strong>
         {['Dashboard', 'Products', 'Categories', 'Bulk Import', 'Media Library', 'Settings'].map((item, index) => {
           const Icon = [BarChart3, Boxes, Boxes, Upload, Image, Settings][index];
           return <a href="#" key={item}><Icon size={18} /> {item}</a>;
@@ -25,7 +25,7 @@ export default function Admin() {
       <section>
         <div className="admin-top">
           <div>
-            <h1>Business Dashboard</h1>
+            <h1>Pasand Showroom Admin</h1>
             <p>Signed in as {auth.admin?.name || 'Admin'}</p>
           </div>
           <div className="admin-actions">

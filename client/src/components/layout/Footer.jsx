@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-grid">
         <div>
-          <Link className="logo inverse" to="/"><span>{business.shortName}</span><small>Fashion Store</small></Link>
+          <Link className="logo inverse" to="/"><span>{business.shortName}</span><small>Showroom</small></Link>
           <p>A trusted family clothing store since 1964, now online for effortless WhatsApp ordering.</p>
         </div>
         <div>

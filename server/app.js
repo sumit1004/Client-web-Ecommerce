@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use('/api', apiLimiter);
 
-app.get('/api/health', (_req, res) => res.json({ success: true, message: 'API healthy', data: { service: '1964 Fashion Store' } }));
+app.get('/api/health', (_req, res) => res.json({ success: true, message: 'API healthy', data: { service: 'Pasand Showroom' } }));
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);

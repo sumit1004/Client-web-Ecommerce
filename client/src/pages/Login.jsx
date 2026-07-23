@@ -38,12 +38,12 @@ export default function Login() {
 
   return (
     <main className="auth-page">
-      <Seo title="Admin Login" description="Secure admin login for 1964 Fashion Store." />
+      <Seo title="Admin Login" description="Secure admin login for Pasand Showroom." />
       <section className="auth-visual" aria-hidden="true">
         <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1100&q=85" alt="" />
         <div>
-          <span>1964 Fashion Store</span>
-          <h1>Manage the premium digital showroom.</h1>
+          <span>Pasand Showroom</span>
+          <h1>Welcome to Pasand Showroom Admin</h1>
         </div>
       </section>
       <section className="auth-panel">

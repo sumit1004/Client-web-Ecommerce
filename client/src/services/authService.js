@@ -3,13 +3,13 @@ import { apiClient } from './apiClient.js';
 const previewAdmin = {
   id: 'preview-admin',
   name: 'Store Admin',
-  email: 'admin@1964fashionstore.com',
+  email: 'admin@pasandshowroom.com',
   role: 'admin'
 };
 
 const previewCredentials = {
-  email: 'admin@1964fashionstore.com',
-  password: 'Admin@1964'
+  email: 'admin@pasandshowroom.com',
+  password: 'Admin@Pasand'
 };
 
 export const authService = {
