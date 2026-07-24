@@ -1,13 +1,17 @@
 import { ChevronDown, Phone, Search, ShoppingBag } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
+import { useState } from 'react';
 import { useCart, useSearch, useSettings } from '../../context/AppProviders.jsx';
 import { useCategoryTree } from '../../hooks/useCatalog.js';
+import { useWhatsApp } from '../../hooks/useWhatsApp.js';
 import { Button } from '../ui/Button.jsx';
 
 export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
   const cart = useCart();
   const search = useSearch();
   const { business } = useSettings();
+  const { openChat, isConfigured } = useWhatsApp();
   const { data } = useCategoryTree();
   const categories = data || [];
 
@@ -40,8 +44,8 @@ export function Navbar() {
 
       <div className="nav-actions">
         <button className="icon-button" aria-label="Open search" onClick={() => search.setOpen(true)}><Search size={20} /></button>
-        {business?.whatsapp && <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">WhatsApp</Button>}
-        {business?.phone && <a className="icon-button" aria-label="Call store" href={`tel:${business.phone}`}><Phone size={19} /></a>}
+        {isConfigured && <Button variant="outline" className="mobile-whatsapp" onClick={() => { setIsOpen(false); openChat(); }}>WhatsApp</Button>}
+        {business?.phone && <button className="icon-button" aria-label="Call store" onClick={() => window.location.href = `tel:${business.phone}`}><Phone size={19} /></button>}
         <Link className="icon-button cart-dot" aria-label="Open cart" to="/cart">
           <ShoppingBag size={20} />
           {cart.count > 0 && <span>{cart.count}</span>}

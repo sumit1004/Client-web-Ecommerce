@@ -51,7 +51,7 @@ export function SearchExperience() {
           {query && results.length === 0 && <p className="empty-note">No products found. Try another collection.</p>}
           {results.map((product) => (
             <Link key={product.id} to={`/product/${product.slug}`} onClick={() => setOpen(false)}>
-              <img src={product.image} alt={product.name} loading="lazy" />
+              <img src={product.thumbnail} alt={product.name} loading="lazy" />
               <span><strong>{product.name}</strong><small>{product.category}</small></span>
               <b>{formatCurrency(product.price)}</b>
             </Link>

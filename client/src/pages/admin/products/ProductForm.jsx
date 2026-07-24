@@ -38,7 +38,7 @@ export function ProductForm() {
     status: 'draft',
     seo_title: '',
     seo_description: '',
-    images: [] // { url, public_id, is_featured }
+    gallery: [] // { url, public_id, is_featured }
   });
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export function ProductForm() {
           featured: !!data.featured,
           new_arrival: !!data.new_arrival,
           show_on_homepage: !!data.show_on_homepage,
-          images: data.images || []
+          gallery: data.gallery || []
         });
       }
     } catch (err) {
@@ -92,7 +92,7 @@ export function ProductForm() {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const newImages = [...formData.images];
+    const newGallery = [...formData.gallery];
     
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
@@ -103,28 +103,28 @@ export function ProductForm() {
         const res = await apiClient.post('/upload', uploadData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        newImages.push({
+        newGallery.push({
           url: res.data.data.url,
           public_id: res.data.data.public_id,
-          is_featured: newImages.length === 0
+          is_featured: newGallery.length === 0
         });
       } catch (err) {
         console.error('Failed to upload image', err);
       }
     }
     
-    setFormData(prev => ({ ...prev, images: newImages }));
+    setFormData(prev => ({ ...prev, gallery: newGallery }));
     e.target.value = '';
   };
 
   const removeImage = (index) => {
-    const newImages = [...formData.images];
-    newImages.splice(index, 1);
+    const newGallery = [...formData.gallery];
+    newGallery.splice(index, 1);
     // If we removed the featured one, make the new first one featured
-    if (newImages.length > 0 && formData.images[index].is_featured) {
-      newImages[0].is_featured = true;
+    if (newGallery.length > 0 && formData.gallery[index].is_featured) {
+      newGallery[0].is_featured = true;
     }
-    setFormData(prev => ({ ...prev, images: newImages }));
+    setFormData(prev => ({ ...prev, gallery: newGallery }));
   };
 
   const handleSubmit = async (e) => {
@@ -233,7 +233,7 @@ export function ProductForm() {
             <h2>Product Gallery</h2>
             <p style={{fontSize: '13px', color: 'var(--muted)', marginBottom: '16px'}}>Upload multiple images. The first image will be used as the thumbnail.</p>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              {formData.images.map((img, idx) => (
+              {formData.gallery.map((img, idx) => (
                 <div key={idx} style={{ position: 'relative', width: '120px', height: '120px', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
                   <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   {idx === 0 && <span style={{ position: 'absolute', bottom: '4px', left: '4px', background: 'var(--accent)', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px' }}>Cover</span>}

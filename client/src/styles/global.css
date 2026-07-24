@@ -351,6 +351,14 @@ h1, h2, h3 { font-family: var(--font-heading); letter-spacing: 0; }
   font-weight: 700;
   font-size: 13px;
 }
+.product-detail-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+.product-detail-actions button {
+  flex: 1;
+}
 .product-card-list {
   display: grid;
   grid-template-columns: 180px 1fr;

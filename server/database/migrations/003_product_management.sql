@@ -6,11 +6,7 @@ ALTER TABLE product_images DROP FOREIGN KEY fk_images_product;
 ALTER TABLE product_variants DROP FOREIGN KEY fk_variants_product;
 ALTER TABLE product_collections DROP FOREIGN KEY fk_pc_product;
 
--- 2. Truncate placeholder data to allow type change without cast issues
-TRUNCATE TABLE product_collections;
-TRUNCATE TABLE product_variants;
-TRUNCATE TABLE product_images;
-TRUNCATE TABLE products;
+-- 2. TRUNCATE block removed to prevent wiping data
 
 -- 3. Alter products table
 ALTER TABLE products

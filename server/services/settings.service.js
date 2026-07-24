@@ -23,6 +23,9 @@ export const settingsService = {
       const [existing] = await connection.query('SELECT id, setting_value FROM settings WHERE setting_key = ?', [groupKey]);
       
       let mergedValues = newValues;
+      if (groupKey === 'business' && mergedValues.whatsapp) {
+        mergedValues.whatsapp = mergedValues.whatsapp.replace(/\D/g, '');
+      }
       if (existing.length > 0) {
         // Merge with existing JSON to avoid overwriting unrelated fields in the same group if partial update
         mergedValues = { ...existing[0].setting_value, ...newValues };

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Search, Edit2, Trash2, Check, X, Star, Home, ArrowUp, ArrowDown, Package, Upload } from 'lucide-react';
+import { PlusCircle, Search, Edit2, Trash2, Check, X, Star, Home, ArrowUp, ArrowDown, Package, Upload, Image } from 'lucide-react';
 import { apiClient } from '../../../services/apiClient.js';
 import { Button } from '../../../components/ui/Button.jsx';
 import '../AdminTable.css';
@@ -158,9 +158,9 @@ export function ProductsList() {
                   <tr key={product.id}>
                     <td><input type="checkbox" checked={selectedIds.has(product.id)} onChange={() => toggleSelect(product.id)} /></td>
                     <td>
-                      {product.images && product.images.length > 0 ? 
-                        <img src={product.images[0].url} alt={product.name} className="table-img" /> : 
-                        <div className="table-img-placeholder"><Package size={16}/></div>}
+                      {product.thumbnail ? 
+                        <img src={product.thumbnail} alt={product.name} className="table-img" /> : 
+                        <div className="table-img-placeholder"><Image size={20}/></div>}
                     </td>
                     <td><strong>{product.name}</strong></td>
                     <td><small>{product.sku}</small></td>

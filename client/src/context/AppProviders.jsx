@@ -47,9 +47,10 @@ export function AppProviders({ children }) {
     async function fetchSettings() {
       try {
         const res = await apiClient.get('/settings/business');
-        setBusinessSettings(res.data.data);
+        setBusinessSettings(res.data?.data || {});
       } catch (err) {
-        console.error('Failed to load global settings');
+        console.error('Failed to load global settings', err);
+        setBusinessSettings({});
       }
     }
     
@@ -72,11 +73,14 @@ export function AppProviders({ children }) {
           const next = items.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item));
           persist(next);
         } else {
-          // Normalize product object to ensure consistent image and category fields
+          // Strictly map the standardized model for local storage
           const normalizedProduct = {
-            ...product,
-            image: getProductImage(product),
-            category: getProductCategory(product),
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            price: product.price,
+            thumbnail: product.thumbnail || getProductImage(product),
+            category: product.category,
             quantity
           };
           persist([...items, normalizedProduct]);

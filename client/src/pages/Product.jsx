@@ -4,25 +4,26 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '../components/ui/Button.jsx';
 import { Seo } from '../components/ui/Seo.jsx';
 import { useToast } from '../components/ui/Toast.jsx';
-import { useCart, useSettings } from '../context/AppProviders.jsx';
+import { useCart } from '../context/AppProviders.jsx';
 import { useAsyncCatalog } from '../hooks/useCatalog.js';
+import { useWhatsApp } from '../hooks/useWhatsApp.js';
 import { catalogService } from '../services/catalogService.js';
-import { buildWhatsAppUrl, formatCurrency, productWhatsAppMessage } from '../utils/whatsapp.js';
+import { formatCurrency } from '../utils/whatsapp.js';
 
 export default function Product() {
   const { slug } = useParams();
   const { data: product } = useAsyncCatalog(() => catalogService.getProduct(slug), [slug]);
   const [qty, setQty] = useState(1);
   const cart = useCart();
-  const { business } = useSettings();
+  const { buyProduct, isConfigured } = useWhatsApp();
   const toast = useToast();
 
   if (!product) return <main className="page"><section className="page-hero compact"><h1>Loading product...</h1></section></main>;
 
   const currentPrice = product.sale_price || product.price;
   const oldPrice = product.sale_price ? product.price : null;
-  const imageUrl = product.images?.[0]?.url || product.image;
-  const gallery = product.images?.map(img => img.url) || [product.image, product.hoverImage].filter(Boolean);
+  const imageUrl = product.thumbnail;
+  const gallery = product.gallery?.length ? product.gallery.map(img => img.url) : [product.thumbnail].filter(Boolean);
   const categoryName = product.category_name || product.category;
   
   const sizes = product.size ? product.size.split(',').map(s => s.trim()) : (product.sizes || []);
@@ -55,13 +56,17 @@ export default function Product() {
             <span>{qty}</span>
             <button onClick={() => setQty(qty + 1)}>+</button>
           </div>
-          <div className="product-actions">
+          <div className="product-detail-actions">
             <Button onClick={() => { cart.add(product, qty); toast.show(`${product.name} added to cart`); }}><ShoppingBag size={18} /> Add to Cart</Button>
-            {business?.whatsapp ? (
-              <Button as="a" variant="outline" href={buildWhatsAppUrl(business.whatsapp, productWhatsAppMessage(business.storeName || 'Store', product, qty))} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /> Buy on WhatsApp</Button>
-            ) : (
-              <Button variant="outline" disabled title="WhatsApp number is not configured"><MessageCircle size={18} /> Buy on WhatsApp</Button>
-            )}
+            <Button 
+              variant="outline" 
+              className={!isConfigured ? 'disabled' : ''}
+              onClick={() => buyProduct(product, qty, window.location.href)}
+              disabled={!isConfigured}
+              title={!isConfigured ? 'WhatsApp number is not configured' : ''}
+            >
+              <MessageCircle size={18} /> Buy on WhatsApp
+            </Button>
           </div>
         </div>
       </section>

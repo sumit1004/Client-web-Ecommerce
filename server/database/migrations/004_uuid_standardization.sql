@@ -20,6 +20,8 @@ ALTER TABLE product_collections ADD CONSTRAINT fk_pc_collection FOREIGN KEY (col
 ALTER TABLE media_library MODIFY id BIGINT NOT NULL;
 ALTER TABLE media_library MODIFY id VARCHAR(36) NOT NULL;
 ALTER TABLE media_library MODIFY uploaded_by VARCHAR(36) NULL;
+
+
 ALTER TABLE media_library ADD CONSTRAINT fk_media_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES admins(id) ON DELETE SET NULL;
 
 -- 5. contact_messages

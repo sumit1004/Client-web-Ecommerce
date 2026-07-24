@@ -10,11 +10,13 @@ import { Seo } from '../components/ui/Seo.jsx';
 import { useSettings } from '../context/AppProviders.jsx';
 import { useHomepageSettings, useCategoryTree, useAsyncCatalog } from '../hooks/useCatalog.js';
 import { catalogService } from '../services/catalogService.js';
+import { useWhatsApp } from '../hooks/useWhatsApp.js';
 
 export default function Landing() {
   const { business } = useSettings();
   const { data: homepageSettings } = useHomepageSettings();
   const { data: categories } = useCategoryTree();
+  const { openChat, isConfigured } = useWhatsApp();
   const { loading, data: productData } = useAsyncCatalog(() => catalogService.getProducts({ featured: true }));
   const products = productData || [];
   const [quickView, setQuickView] = useState(null);
@@ -30,11 +32,15 @@ export default function Landing() {
             <p>{homepageSettings?.hero_subtitle || 'Discover our latest collection of premium fashion.'}</p>
             <div className="hero-actions">
               <Button as={Link} to="/products">Shop Collection</Button>
-              {business?.whatsapp ? (
-                <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /> Shop on WhatsApp</Button>
-              ) : (
-                <Button variant="outline" disabled title="WhatsApp number is not configured"><MessageCircle size={18} /> Shop on WhatsApp</Button>
-              )}
+              <Button 
+                variant="outline" 
+                className={!isConfigured ? 'disabled' : ''}
+                onClick={openChat}
+                disabled={!isConfigured}
+                title={!isConfigured ? 'WhatsApp number is not configured' : ''}
+              >
+                <MessageCircle size={18} /> Shop on WhatsApp
+              </Button>
               {business?.phone && <Button as="a" variant="ghost" href={`tel:${business.phone}`}><Phone size={18} /> Call</Button>}
             </div>
           </div>
@@ -97,22 +103,30 @@ export default function Landing() {
           <h2>Follow the new collection drops.</h2>
         </div>
         <div className="contact-grid">
-          {['Visit Store', 'Call Us', 'Email Us', 'WhatsApp'].map((item, index) => (
-            <a 
-              key={item} 
-              href={
-                index === 0 && business?.mapsUrl ? business.mapsUrl :
-                index === 1 && business?.phone ? `tel:${business.phone}` :
-                index === 2 && business?.email ? `mailto:${business.email}` :
-                index === 3 && business?.whatsapp ? `https://wa.me/${business.whatsapp.replace(/\D/g, '')}` : 
-                '#'
-              }
-              target={index === 0 || index === 3 ? '_blank' : undefined}
-              rel={index === 0 || index === 3 ? 'noopener noreferrer' : undefined}
-            >
-              <Store size={24} /><strong>{item}</strong><span>Open</span>
-            </a>
-          ))}
+          {['Visit Store', 'Call Us', 'Email Us', 'WhatsApp'].map((item, index) => {
+            if (index === 3) {
+              return (
+                <button key={item} className="contact-link" onClick={openChat}>
+                  <Store size={24} /><strong>{item}</strong><span>Open</span>
+                </button>
+              );
+            }
+
+            const href = index === 0 ? business?.mapsUrl : 
+              index === 1 && business?.phone ? `tel:${business.phone}` : 
+              index === 2 && business?.email ? `mailto:${business.email}` : '#';
+
+            return (
+              <a 
+                key={item} 
+                href={href}
+                target={index === 0 ? '_blank' : undefined}
+                rel={index === 0 ? 'noopener noreferrer' : undefined}
+              >
+                <Store size={24} /><strong>{item}</strong><span>Open</span>
+              </a>
+            );
+          })}
         </div>
       </section>
 

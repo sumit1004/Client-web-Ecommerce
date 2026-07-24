@@ -1,35 +1,34 @@
-export function formatCurrency(value) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(value);
+export function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 }
 
-export function buildWhatsAppUrl(phoneNumber, message) {
-  if (!phoneNumber) return null;
-  // Strip all non-numeric characters (removes spaces, +, -, ())
-  const cleanNumber = phoneNumber.replace(/\D/g, '');
-  if (!cleanNumber) return null;
-  return `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppUrl(phone, message) {
+  if (!phone) return '#';
+  const cleanPhone = String(phone).replace(/\D/g, '');
+  if (!cleanPhone) return '#';
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message || '')}`;
 }
 
 export function productWhatsAppMessage(storeName, product, quantity = 1, currentUrl = '') {
-  return `Hello ${storeName},
+  const name = product?.name || 'Product';
+  const sku = product?.sku || 'N/A';
+  const price = product?.sale_price || product?.price || 0;
+  
+  return `Hello ${storeName || 'Store'},
 
 I would like to order the following product.
 
 Product:
-${product.name} (${product.sku})
+${name} (${sku})
 
 Price:
-${formatCurrency(product.price)}
+${formatCurrency(price)}
 
 Quantity:
 ${quantity}
 
 Subtotal:
-${formatCurrency(product.price * quantity)}
+${formatCurrency(price * quantity)}
 
 Product Link:
 ${currentUrl || window.location.href}
@@ -43,11 +42,21 @@ _________
 Please confirm availability.`;
 }
 
-export function cartWhatsAppMessage(storeName, items) {
-  const lines = items.map((item, index) => `${index + 1}. ${item.name} (${item.quantity} x ${formatCurrency(item.price)}) = ${formatCurrency(item.price * item.quantity)}`);
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+export function cartWhatsAppMessage(storeName, items = []) {
+  const lines = items.map((item, index) => {
+    const name = item?.name || 'Item';
+    const price = item?.sale_price || item?.price || 0;
+    const qty = item?.quantity || 1;
+    return `${index + 1}. ${name} (${qty} x ${formatCurrency(price)}) = ${formatCurrency(price * qty)}`;
+  });
   
-  return `Hello ${storeName},
+  const total = items.reduce((sum, item) => {
+    const price = item?.sale_price || item?.price || 0;
+    const qty = item?.quantity || 1;
+    return sum + (price * qty);
+  }, 0);
+  
+  return `Hello ${storeName || 'Store'},
 
 I would like to place an order for the following items:
 

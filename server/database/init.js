@@ -21,29 +21,81 @@ export async function initializeDatabase() {
     await tempPool.query(`CREATE DATABASE IF NOT EXISTS \`${env.database.database}\``);
     await tempPool.end();
 
+    console.log('Database connected.\nChecking migrations...');
+
+    // 1. Create schema_migrations table if not exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        filename VARCHAR(255) NOT NULL UNIQUE,
+        checksum VARCHAR(64),
+        executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // 2. Check if this is an existing database without tracking
+    const [migrationsRows] = await pool.query('SELECT COUNT(*) as count FROM schema_migrations');
+    
     const migrationsDir = path.join(__dirname, 'migrations');
     const files = fs.readdirSync(migrationsDir)
       .filter(f => f.endsWith('.sql'))
-      .sort(); // ensures 001 runs before 002
+      .sort();
 
+    if (migrationsRows[0].count === 0) {
+      // Check if products table exists (indicating a pre-migrated DB)
+      const [tableRows] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM information_schema.tables 
+        WHERE table_schema = ? AND table_name = 'products'
+      `, [env.database.database]);
+      
+      if (tableRows[0].count > 0) {
+        console.log('Existing populated database detected. Bootstrapping migration tracker...');
+        for (const file of files) {
+          await pool.query('INSERT IGNORE INTO schema_migrations (filename) VALUES (?)', [file]);
+        }
+      }
+    }
+
+    // 3. Fetch executed migrations
+    const [executedRows] = await pool.query('SELECT filename FROM schema_migrations');
+    const executedFiles = new Set(executedRows.map(r => r.filename));
+
+    let pendingCount = 0;
+
+    // 4. Execute pending migrations
     for (const file of files) {
+      if (executedFiles.has(file)) continue;
+      
+      console.log(`Executing migration: ${file}`);
+      pendingCount++;
       const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      
+      // Split by semicolon but ignore semicolons inside quotes/comments if possible (naive split for now)
       const statements = sql.split(';').filter((stmt) => stmt.trim() !== '');
+      
       for (const stmt of statements) {
         try {
           await pool.query(stmt);
         } catch (stmtError) {
-          // Ignore duplicate column errors or foreign key drop errors if already applied
-          if (stmtError.code === 'ER_DUP_FIELDNAME' || stmtError.code === 'ER_CANT_DROP_FIELD_OR_KEY') {
-            continue;
-          }
           console.error(`Migration error in ${file}:`, stmtError.message);
+          throw stmtError; // Fail fast and halt server startup
         }
       }
+      
+      // Mark as executed
+      await pool.query('INSERT INTO schema_migrations (filename) VALUES (?)', [file]);
+      console.log(`Completed migration: ${file}`);
     }
-    console.log('Database schema validated.');
+
+    if (pendingCount === 0) {
+      console.log('No pending migrations.');
+    } else {
+      console.log(`Database schema validated. Executed ${pendingCount} migrations.`);
+    }
   } catch (error) {
     console.error('Database initialization failed:', error.message);
+    process.exit(1);
   }
 }
 

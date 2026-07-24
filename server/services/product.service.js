@@ -3,6 +3,43 @@ import slugify from 'slugify';
 import { pool } from '../config/database.js';
 import { cloudinary } from '../config/cloudinary.js';
 
+function mapProduct(p) {
+  if (!p) return null;
+  // Fallback to legacy fields if JSON_ARRAYAGG didn't return a valid array
+  const rawImages = typeof p.images === 'string' ? JSON.parse(p.images) : p.images;
+  const gallery = Array.isArray(rawImages) && rawImages.length > 0 && rawImages[0].url ? rawImages : [];
+  
+  return {
+    id: p.id,
+    uuid: p.id,
+    slug: p.slug,
+    name: p.name,
+    sku: p.sku,
+    category_id: p.category_id,
+    brand: p.brand,
+    price: p.price,
+    sale_price: p.sale_price,
+    cost_price: p.cost_price,
+    description: p.description,
+    gender: p.gender,
+    age_group: p.age_group,
+    color: p.color,
+    size: p.size,
+    weight: p.weight,
+    stock: p.stock,
+    low_stock_threshold: p.low_stock_threshold,
+    featured: p.featured,
+    new_arrival: p.new_arrival,
+    show_on_homepage: p.show_on_homepage,
+    status: p.status,
+    seo_title: p.seo_title,
+    seo_description: p.seo_description,
+    category: p.category_name || 'Uncategorized',
+    thumbnail: gallery.length > 0 ? gallery[0].url : (p.image || null),
+    gallery: gallery
+  };
+}
+
 export const productService = {
   getProducts: async (params = {}) => {
     const { search, category, brand, status, featured, homepage, sort, order, page = 1, limit = 20 } = params;
@@ -66,7 +103,7 @@ export const productService = {
     const [countRows] = await pool.query(countQuery, countParams);
 
     return {
-      products: rows,
+      products: rows.map(mapProduct),
       total: countRows[0].total,
       page: Number(page),
       totalPages: Math.ceil(countRows[0].total / limit)
@@ -82,7 +119,7 @@ export const productService = {
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.id = ? AND p.deleted_at IS NULL
     `, [id]);
-    return rows[0];
+    return mapProduct(rows[0]);
   },
 
   getProductBySlug: async (slug) => {
@@ -94,7 +131,7 @@ export const productService = {
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.slug = ? AND p.deleted_at IS NULL
     `, [slug]);
-    return rows[0];
+    return mapProduct(rows[0]);
   },
 
   createProduct: async (data, adminId) => {
@@ -142,9 +179,9 @@ export const productService = {
 
       await connection.query('INSERT INTO products SET ?', [productFields]);
 
-      if (data.images && Array.isArray(data.images)) {
-        for (let i = 0; i < data.images.length; i++) {
-          const img = data.images[i];
+      if (data.gallery && Array.isArray(data.gallery)) {
+        for (let i = 0; i < data.gallery.length; i++) {
+          const img = data.gallery[i];
           await connection.query('INSERT INTO product_images SET ?', [{
             id: uuidv4(),
             product_id: id,
@@ -165,8 +202,8 @@ export const productService = {
     } catch (error) {
       await connection.rollback();
       // Cleanup orphan Cloudinary images if insertion failed
-      if (data && data.images && Array.isArray(data.images)) {
-        for (const img of data.images) {
+      if (data && data.gallery && Array.isArray(data.gallery)) {
+        for (const img of data.gallery) {
           try {
             await cloudinary.uploader.destroy(img.public_id);
           } catch(err) {
@@ -238,10 +275,10 @@ export const productService = {
       await connection.query('UPDATE products SET ? WHERE id = ?', [productFields, id]);
 
       // Update images
-      if (data.images && Array.isArray(data.images)) {
+      if (data.gallery && Array.isArray(data.gallery)) {
         await connection.query('DELETE FROM product_images WHERE product_id = ?', [id]);
-        for (let i = 0; i < data.images.length; i++) {
-          const img = data.images[i];
+        for (let i = 0; i < data.gallery.length; i++) {
+          const img = data.gallery[i];
           await connection.query('INSERT INTO product_images SET ?', [{
             id: uuidv4(),
             product_id: id,

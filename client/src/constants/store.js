@@ -1,9 +1,9 @@
 export const business = {
   name: 'Pasand Showroom',
   shortName: 'Pasand',
-  phone: '<Business Phone>',
-  whatsapp: '<Business WhatsApp>',
-  email: '<Business Email>',
+  phone: '919229923377',
+  whatsapp: '919229923377',
+  email: 'hello@pasandshowroom.com',
   address: '<Business Address>',
   hours: '<Business Hours>',
   mapsUrl: '<Business Maps URL>',
