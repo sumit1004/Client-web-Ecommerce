@@ -24,7 +24,7 @@ export const catalogService = {
     const res = await safeRequest(() => apiClient.get(`/products/slug/${slug}`));
     return res;
   },
-  search: (query) => catalogService.getProducts({ query }),
+  search: (query) => catalogService.getProducts({ query, limit: 8 }),
   getHomepageSettings: async () => {
     const res = await safeRequest(() => apiClient.get('/settings/homepage'));
     return res;

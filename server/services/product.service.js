@@ -58,8 +58,14 @@ export const productService = {
     const queryParams = [];
 
     if (search) {
-      query += ` AND (p.name LIKE ? OR p.sku LIKE ? OR p.barcode LIKE ?)`;
-      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      const cleanSearch = search.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().replace(/\s+/g, ' ');
+      if (cleanSearch) {
+        const tokens = cleanSearch.split(' ');
+        tokens.forEach(token => {
+          query += ` AND (p.name LIKE ? OR p.sku LIKE ? OR p.brand LIKE ? OR c.name LIKE ? OR p.slug LIKE ?)`;
+          queryParams.push(`%${token}%`, `%${token}%`, `%${token}%`, `%${token}%`, `%${token}%`);
+        });
+      }
     }
     if (category) {
       query += ` AND p.category_id = ?`;
@@ -96,7 +102,16 @@ export const productService = {
     // Count Total
     let countQuery = `SELECT COUNT(*) as total FROM products p WHERE p.deleted_at IS NULL`;
     const countParams = [];
-    if (search) { countQuery += ` AND (p.name LIKE ? OR p.sku LIKE ? OR p.barcode LIKE ?)`; countParams.push(`%${search}%`, `%${search}%`, `%${search}%`); }
+    if (search) { 
+      const cleanSearch = search.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().replace(/\s+/g, ' ');
+      if (cleanSearch) {
+        const tokens = cleanSearch.split(' ');
+        tokens.forEach(token => {
+          countQuery += ` AND (p.name LIKE ? OR p.sku LIKE ? OR p.brand LIKE ? OR c.name LIKE ? OR p.slug LIKE ?)`; 
+          countParams.push(`%${token}%`, `%${token}%`, `%${token}%`, `%${token}%`, `%${token}%`);
+        });
+      }
+    }
     if (category) { countQuery += ` AND p.category_id = ?`; countParams.push(category); }
     if (brand) { countQuery += ` AND p.brand = ?`; countParams.push(brand); }
     if (status) { countQuery += ` AND p.status = ?`; countParams.push(status); }

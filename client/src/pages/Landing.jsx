@@ -1,4 +1,4 @@
-import { ArrowDown, MessageCircle, Phone, Star, Store, Truck } from 'lucide-react';
+import { ArrowDown, MessageCircle, Phone, Star, Store, Truck, MapPin, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CategoryCard } from '../components/categories/CategoryCard.jsx';
@@ -32,8 +32,8 @@ export default function Landing() {
             <p>{homepageSettings?.hero_subtitle || 'Discover our latest collection of premium fashion.'}</p>
             <div className="hero-actions">
               <Button as={Link} to="/products">Shop Collection</Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className={!isConfigured ? 'disabled' : ''}
                 onClick={openChat}
                 disabled={!isConfigured}
@@ -103,27 +103,33 @@ export default function Landing() {
           <h2>Follow the new collection drops.</h2>
         </div>
         <div className="contact-grid">
-          {['Visit Store', 'Call Us', 'Email Us', 'WhatsApp'].map((item, index) => {
+          {[
+            { text: 'Visit Store', Icon: MapPin, action: 'Open' },
+            { text: 'Call Us', Icon: Phone, action: 'Call' },
+            { text: 'Email Us', Icon: Mail, action: 'Send' },
+            { text: 'WhatsApp', Icon: MessageCircle, action: 'Chat' }
+          ].map((item, index) => {
             if (index === 3) {
               return (
-                <button key={item} className="contact-link" onClick={openChat}>
-                  <Store size={24} /><strong>{item}</strong><span>Open</span>
+                <button key={item.text} className="contact-link" onClick={openChat}>
+                  <item.Icon size={24} /><strong>{item.text}</strong><span>{item.action}</span>
                 </button>
               );
             }
 
-            const href = index === 0 ? business?.mapsUrl : 
-              index === 1 && business?.phone ? `tel:${business.phone}` : 
-              index === 2 && business?.email ? `mailto:${business.email}` : '#';
+            const href = index === 0 ? business?.mapsUrl :
+              index === 1 && business?.phone ? `tel:${business.phone}` :
+                index === 2 && business?.email ? `mailto:${business.email}` : '#';
 
             return (
-              <a 
-                key={item} 
+              <a
+                key={item.text}
                 href={href}
+                className="contact-link"
                 target={index === 0 ? '_blank' : undefined}
                 rel={index === 0 ? 'noopener noreferrer' : undefined}
               >
-                <Store size={24} /><strong>{item}</strong><span>Open</span>
+                <item.Icon size={24} /><strong>{item.text}</strong><span>{item.action}</span>
               </a>
             );
           })}
