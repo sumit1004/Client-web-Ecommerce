@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UploadCloud, FileText, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, AlertCircle, RefreshCw, Download } from 'lucide-react';
 import { apiClient } from '../../../services/apiClient.js';
 import { Button } from '../../../components/ui/Button.jsx';
 import '../AdminTable.css';
@@ -45,6 +45,21 @@ export function BulkImport() {
       setImportError(err.response?.data?.message || err.message || 'Failed to import products');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const res = await apiClient.get('/import/template', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Product_Import_Template.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      alert('Failed to download template. Ensure you have admin privileges.');
     }
   };
 
@@ -125,8 +140,15 @@ export function BulkImport() {
         
         {tab === 'excel' && (
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ marginTop: 0 }}>Import Products from Excel</h2>
-            <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Upload a .xlsx, .xls, or .csv file containing your product data. Ensure columns like Name, SKU, Category, and Price exist.</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h2 style={{ marginTop: 0, marginBottom: '8px' }}>Import Products from Excel</h2>
+                <p style={{ margin: 0, color: 'var(--muted)' }}>Upload your products using our standard template format.</p>
+              </div>
+              <Button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--primary)', color: '#fff' }}>
+                <Download size={18} /> Download Sample Template
+              </Button>
+            </div>
             
             <form onSubmit={handleImportExcel}>
               <div style={{ border: '2px dashed var(--border)', borderRadius: '12px', padding: '40px', textAlign: 'center', marginBottom: '24px', background: 'var(--secondary-bg)' }}>
@@ -134,10 +156,21 @@ export function BulkImport() {
                 <h3 style={{ margin: '0 0 8px' }}>Select Excel File</h3>
                 <input type="file" accept=".xlsx, .xls, .csv" onChange={handleFileChange} style={{ display: 'block', margin: '0 auto' }} />
               </div>
-              <Button type="submit" disabled={!file || loading} style={{ width: '100%' }}>
+              <Button type="submit" disabled={!file || loading} style={{ width: '100%', marginBottom: '32px' }}>
                 {loading ? <RefreshCw className="spinner" size={18} /> : 'Start Import'}
               </Button>
             </form>
+            
+            <div style={{ background: 'var(--secondary-bg)', padding: '24px', borderRadius: '12px' }}>
+              <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}><AlertCircle size={18} color="var(--primary)"/> How to Use</h3>
+              <ol style={{ margin: 0, paddingLeft: '20px', color: 'var(--muted)', lineHeight: '1.7' }}>
+                <li><strong>Download the sample template</strong> using the button above.</li>
+                <li>Fill your product information according to the Instructions sheet.</li>
+                <li>Do not rename or delete column headers.</li>
+                <li>Save the file as <code>.xlsx</code> or <code>.csv</code>.</li>
+                <li>Upload the file and review the validation results.</li>
+              </ol>
+            </div>
           </div>
         )}
 

@@ -5,6 +5,7 @@ import { pool } from '../config/database.js';
 import { cloudinary } from '../config/cloudinary.js';
 import fs from 'fs';
 import { importJobs } from '../controllers/import.controller.js';
+import { IMPORT_SCHEMA } from '../utils/importSchema.js';
 
 export const importService = {
   importProducts: async (fileBuffer, adminId) => {
@@ -37,15 +38,40 @@ export const importService = {
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const rowNumber = i + 2; // +1 for header, +1 for 0-index
+        let rowValid = true;
 
-        if (!row.Name || !row.SKU || !row.Price) {
-          report.failed++;
-          report.errors.push({ row: rowNumber, sku: row.SKU, reason: 'Missing Name, SKU, or Price' });
-          continue;
+        for (const schemaCol of IMPORT_SCHEMA) {
+          const val = row[schemaCol.column];
+          if (schemaCol.required && (val === undefined || val === null || val === '')) {
+            report.failed++;
+            report.errors.push({ row: rowNumber, sku: row.SKU || 'N/A', reason: `${schemaCol.column} is required` });
+            rowValid = false;
+            break;
+          }
+          if (val !== undefined && val !== null && val !== '') {
+            if (schemaCol.type === 'number') {
+              const num = parseFloat(val);
+              if (isNaN(num)) {
+                report.failed++;
+                report.errors.push({ row: rowNumber, sku: row.SKU || 'N/A', reason: `${schemaCol.column} must be numeric` });
+                rowValid = false;
+                break;
+              }
+            } else if (schemaCol.type === 'enum') {
+              if (!schemaCol.enum.includes(String(val))) {
+                report.failed++;
+                report.errors.push({ row: rowNumber, sku: row.SKU || 'N/A', reason: `${schemaCol.column} must be one of: ${schemaCol.enum.join(', ')}` });
+                rowValid = false;
+                break;
+              }
+            }
+          }
         }
 
-        const categoryId = row.Category ? categoryMap[row.Category.toLowerCase()] : null;
-        if (!categoryId && row.Category) {
+        if (!rowValid) continue;
+
+        const categoryId = categoryMap[String(row.Category).toLowerCase()];
+        if (!categoryId) {
           report.failed++;
           report.errors.push({ row: rowNumber, sku: row.SKU, reason: `Category '${row.Category}' not found` });
           continue;
@@ -53,11 +79,6 @@ export const importService = {
 
         const sku = String(row.SKU).trim();
         const price = parseFloat(row.Price);
-        if (isNaN(price) || price < 0) {
-          report.failed++;
-          report.errors.push({ row: rowNumber, sku, reason: 'Invalid Price' });
-          continue;
-        }
 
         const slug = slugify(row.Name, { lower: true, strict: true }) + '-' + uuidv4().substring(0,6);
 

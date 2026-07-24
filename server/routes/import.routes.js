@@ -11,6 +11,8 @@ const uploadMemory = multer({ storage: multer.memoryStorage() });
 // Setup disk multer for bulk images - Support up to 1000 images
 const uploadDisk = multer({ dest: 'uploads/' });
 
+router.get('/template', requireAdmin, importController.getTemplate);
+
 router.post('/products', requireAdmin, uploadMemory.single('file'), importController.importProducts);
 
 // Post images to server, return Job ID immediately
