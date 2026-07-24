@@ -69,12 +69,26 @@ export async function getCategoryTree() {
     ORDER BY c.display_order ASC, c.name ASC
   `);
 
+  const [products] = await pool.query(`
+    SELECT id, name, slug, category_id
+    FROM products
+    WHERE deleted_at IS NULL AND status = 'active'
+    ORDER BY name ASC
+  `);
+
   const categoryMap = new Map();
   const roots = [];
 
   rows.forEach(cat => {
     cat.children = [];
+    cat.products = [];
     categoryMap.set(cat.id, cat);
+  });
+
+  products.forEach(prod => {
+    if (prod.category_id && categoryMap.has(prod.category_id)) {
+      categoryMap.get(prod.category_id).products.push(prod);
+    }
   });
 
   rows.forEach(cat => {

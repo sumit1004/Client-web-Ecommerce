@@ -8,7 +8,7 @@ import { useCart } from '../context/AppProviders.jsx';
 import { useAsyncCatalog } from '../hooks/useCatalog.js';
 import { useWhatsApp } from '../hooks/useWhatsApp.js';
 import { catalogService } from '../services/catalogService.js';
-import { formatCurrency } from '../utils/whatsapp.js';
+import { formatCurrency, resolveProductImage, resolveProductUrl } from '../utils/whatsapp.js';
 
 export default function Product() {
   const { slug } = useParams();
@@ -31,7 +31,13 @@ export default function Product() {
 
   return (
     <main className="page product-detail-page">
-      <Seo title={product.name} description={product.description} />
+      <Seo 
+        title={product.name} 
+        description={product.description} 
+        image={resolveProductImage(product)} 
+        url={resolveProductUrl(product)} 
+        type="product" 
+      />
       <section className="product-detail">
         <div className="gallery">
           <img src={imageUrl} alt={product.name} />

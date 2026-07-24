@@ -24,20 +24,24 @@ export function Navbar() {
 
       <nav className="desktop-nav" aria-label="Primary navigation">
         <NavLink to="/">Home</NavLink>
+        <NavLink to="/categories">Categories</NavLink>
         <div className="mega-trigger">
-          <NavLink to="/categories">Categories <ChevronDown size={15} /></NavLink>
+          <NavLink to="/products">Products <ChevronDown size={15} /></NavLink>
           <div className="mega-menu">
-            {categories.map((category) => (
-              <div key={category.slug}>
-                <h3>{category.name}</h3>
-                {(category.children || []).map((child) => (
-                  <Link key={child.slug} to={`/category/${child.slug}`}>{child.name}</Link>
-                ))}
-              </div>
-            ))}
+            {categories.map((category) => {
+              const products = category.products || [];
+              if (products.length === 0) return null;
+              return (
+                <div key={category.slug}>
+                  <h3>{category.name}</h3>
+                  {products.map((product) => (
+                    <Link key={product.slug} to={`/product/${product.slug}`}>{product.name}</Link>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </div>
-        <NavLink to="/products">Products</NavLink>
         <a href="/#legacy">About</a>
         <NavLink to="/contact">Contact</NavLink>
       </nav>

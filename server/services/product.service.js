@@ -40,6 +40,9 @@ function mapProduct(p) {
   };
 }
 
+const parseNum = (val) => (val === '' || val === null || val === undefined) ? null : Number(val);
+const parseReqNum = (val, fallback = 0) => (val === '' || val === null || val === undefined) ? fallback : Number(val);
+
 export const productService = {
   getProducts: async (params = {}) => {
     const { search, category, brand, status, featured, homepage, sort, order, page = 1, limit = 20 } = params;
@@ -156,17 +159,17 @@ export const productService = {
         sku: data.sku,
         category_id: data.category_id,
         brand: data.brand || null,
-        price: data.price,
-        sale_price: data.sale_price || null,
-        cost_price: data.cost_price || null,
+        price: parseReqNum(data.price),
+        sale_price: parseNum(data.sale_price),
+        cost_price: parseNum(data.cost_price),
         description: data.description || null,
         gender: data.gender || null,
         age_group: data.age_group || null,
         color: data.color || null,
         size: data.size || null,
-        weight: data.weight || null,
-        stock: data.stock || 0,
-        low_stock_threshold: data.low_stock_threshold || 5,
+        weight: parseNum(data.weight),
+        stock: parseReqNum(data.stock, 0),
+        low_stock_threshold: parseReqNum(data.low_stock_threshold, 5),
         featured: data.featured ? 1 : 0,
         new_arrival: data.new_arrival ? 1 : 0,
         show_on_homepage: data.show_on_homepage ? 1 : 0,
@@ -252,17 +255,17 @@ export const productService = {
         sku: data.sku ?? current[0].sku,
         category_id: data.category_id ?? current[0].category_id,
         brand: data.brand ?? current[0].brand,
-        price: data.price ?? current[0].price,
-        sale_price: data.sale_price ?? current[0].sale_price,
-        cost_price: data.cost_price ?? current[0].cost_price,
+        price: data.price !== undefined ? parseReqNum(data.price) : current[0].price,
+        sale_price: data.sale_price !== undefined ? parseNum(data.sale_price) : current[0].sale_price,
+        cost_price: data.cost_price !== undefined ? parseNum(data.cost_price) : current[0].cost_price,
         description: data.description ?? current[0].description,
         gender: data.gender ?? current[0].gender,
         age_group: data.age_group ?? current[0].age_group,
         color: data.color ?? current[0].color,
         size: data.size ?? current[0].size,
-        weight: data.weight ?? current[0].weight,
-        stock: data.stock ?? current[0].stock,
-        low_stock_threshold: data.low_stock_threshold ?? current[0].low_stock_threshold,
+        weight: data.weight !== undefined ? parseNum(data.weight) : current[0].weight,
+        stock: data.stock !== undefined ? parseReqNum(data.stock) : current[0].stock,
+        low_stock_threshold: data.low_stock_threshold !== undefined ? parseReqNum(data.low_stock_threshold) : current[0].low_stock_threshold,
         featured: data.featured !== undefined ? (data.featured ? 1 : 0) : current[0].featured,
         new_arrival: data.new_arrival !== undefined ? (data.new_arrival ? 1 : 0) : current[0].new_arrival,
         show_on_homepage: data.show_on_homepage !== undefined ? (data.show_on_homepage ? 1 : 0) : current[0].show_on_homepage,
