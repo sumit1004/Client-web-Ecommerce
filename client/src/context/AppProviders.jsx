@@ -1,9 +1,12 @@
 import { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { authService } from '../services/authService.js';
+import { apiClient } from '../services/apiClient.js';
+import { getProductImage, getProductCategory } from '../utils/product.js';
 
 const CartContext = createContext(null);
 const SearchContext = createContext(null);
 const AuthContext = createContext(null);
+const SettingsContext = createContext(null);
 
 function getStoredCart() {
   try {
@@ -26,6 +29,7 @@ export function AppProviders({ children }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [admin, setAdmin] = useState(getStoredAdmin);
   const [authLoading, setAuthLoading] = useState(true);
+  const [businessSettings, setBusinessSettings] = useState(null);
 
   useEffect(() => {
     async function initAuth() {
@@ -39,7 +43,18 @@ export function AppProviders({ children }) {
       }
       setAuthLoading(false);
     }
+    
+    async function fetchSettings() {
+      try {
+        const res = await apiClient.get('/settings/business');
+        setBusinessSettings(res.data.data);
+      } catch (err) {
+        console.error('Failed to load global settings');
+      }
+    }
+    
     initAuth();
+    fetchSettings();
   }, []);
 
   const cart = useMemo(() => {
@@ -53,10 +68,19 @@ export function AppProviders({ children }) {
       total: items.reduce((sum, item) => sum + item.quantity * item.price, 0),
       add(product, quantity = 1) {
         const existing = items.find((item) => item.id === product.id);
-        const next = existing
-          ? items.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item))
-          : [...items, { ...product, quantity }];
-        persist(next);
+        if (existing) {
+          const next = items.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item));
+          persist(next);
+        } else {
+          // Normalize product object to ensure consistent image and category fields
+          const normalizedProduct = {
+            ...product,
+            image: getProductImage(product),
+            category: getProductCategory(product),
+            quantity
+          };
+          persist([...items, normalizedProduct]);
+        }
       },
       update(id, quantity) {
         persist(items.map((item) => (item.id === id ? { ...item, quantity } : item)).filter((item) => item.quantity > 0));
@@ -88,14 +112,17 @@ export function AppProviders({ children }) {
   }), [admin, authLoading]);
 
   return (
-    <AuthContext.Provider value={auth}>
-      <CartContext.Provider value={cart}>
-        <SearchContext.Provider value={search}>{children}</SearchContext.Provider>
-      </CartContext.Provider>
-    </AuthContext.Provider>
+    <SettingsContext.Provider value={{ business: businessSettings }}>
+      <AuthContext.Provider value={auth}>
+        <CartContext.Provider value={cart}>
+          <SearchContext.Provider value={search}>{children}</SearchContext.Provider>
+        </CartContext.Provider>
+      </AuthContext.Provider>
+    </SettingsContext.Provider>
   );
 }
 
 export const useCart = () => useContext(CartContext);
 export const useSearch = () => useContext(SearchContext);
 export const useAuth = () => useContext(AuthContext);
+export const useSettings = () => useContext(SettingsContext);

@@ -12,6 +12,6 @@ export async function loginAdmin(email, password) {
   if (!valid) return null;
   const token = jwt.sign({ id: admin.id, email: admin.email, name: admin.name, role: admin.role, profile_image: admin.profile_image }, env.jwtSecret, { expiresIn: '7d' });
   await pool.query('UPDATE admins SET last_login = NOW() WHERE id = ?', [admin.id]);
-  await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [admin.id, 'Login', JSON.stringify({ ip: 'server' })]);
+  await pool.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [admin.id, 'Login', JSON.stringify({ ip: 'server' })]);
   return { token, admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role, profile_image: admin.profile_image } };
 }

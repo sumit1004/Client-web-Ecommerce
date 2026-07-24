@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { MessageCircle, ShoppingBag, X } from 'lucide-react';
-import { useCart } from '../../context/AppProviders.jsx';
+import { useCart, useSettings } from '../../context/AppProviders.jsx';
 import { buildWhatsAppUrl, formatCurrency, productWhatsAppMessage } from '../../utils/whatsapp.js';
 import { Button } from '../ui/Button.jsx';
 import { useToast } from '../ui/Toast.jsx';
 
 export function QuickViewModal({ product, onClose }) {
   const cart = useCart();
+  const { business } = useSettings();
   const toast = useToast();
   if (!product) return null;
 
@@ -24,8 +25,12 @@ export function QuickViewModal({ product, onClose }) {
           <div className="option-row">{product.sizes.map((size) => <span key={size}>{size}</span>)}</div>
           <div className="option-row">{product.colors.map((color) => <span key={color}>{color}</span>)}</div>
           <div className="modal-actions">
-            <Button onClick={() => { cart.add(product); toast.show(`${product.name} added to cart`); }}><ShoppingBag size={18} /> Add to Cart</Button>
-            <Button as="a" variant="outline" href={buildWhatsAppUrl(productWhatsAppMessage(product))}><MessageCircle size={18} /> Buy on WhatsApp</Button>
+            <Button onClick={() => { cart.add(product); toast.show(`${product.name} added to cart`); onClose(); }}><ShoppingBag size={18} /> Add to Cart</Button>
+            {business?.whatsapp ? (
+              <Button as="a" variant="outline" href={buildWhatsAppUrl(business.whatsapp, productWhatsAppMessage(business.storeName || 'Store', product, 1, `${window.location.origin}/product/${product.slug}`))} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /> Buy on WhatsApp</Button>
+            ) : (
+              <Button variant="outline" disabled title="WhatsApp number is not configured"><MessageCircle size={18} /> Buy on WhatsApp</Button>
+            )}
             <Button as={Link} variant="ghost" to={`/product/${product.slug}`} onClick={onClose}>View Details</Button>
           </div>
         </div>

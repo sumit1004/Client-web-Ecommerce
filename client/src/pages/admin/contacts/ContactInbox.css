@@ -1,0 +1,160 @@
+.contact-inbox .inbox-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.inbox-sidebar {
+  width: 250px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 0;
+  flex-shrink: 0;
+}
+
+.sidebar-stats {
+  padding: 0 24px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-stats strong {
+  font-size: 24px;
+}
+
+.sidebar-stats span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.status-list li:hover {
+  background: var(--secondary-bg);
+}
+
+.status-list li.active {
+  background: rgba(200, 155, 60, 0.05);
+  border-left: 3px solid var(--accent);
+  font-weight: 500;
+}
+
+.inbox-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.message-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.message-card.status-new {
+  border-left: 4px solid var(--primary);
+}
+
+.message-card.status-read {
+  border-left: 4px solid var(--muted);
+}
+
+.message-card.status-resolved {
+  border-left: 4px solid #22c55e;
+}
+
+.msg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.msg-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msg-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.msg-phone, .msg-date {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.msg-status-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: var(--secondary-bg);
+}
+
+.status-new .msg-status-badge {
+  background: rgba(200, 155, 60, 0.1);
+  color: var(--primary);
+}
+
+.status-resolved .msg-status-badge {
+  background: rgba(34, 197, 94, 0.1);
+  color: #166534;
+}
+
+.msg-body {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+}
+
+.msg-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .contact-inbox .inbox-container {
+    flex-direction: column;
+  }
+  .inbox-sidebar {
+    width: 100%;
+  }
+}

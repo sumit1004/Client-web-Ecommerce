@@ -138,7 +138,7 @@ export async function createCategory(data, adminId) {
   ];
 
   await pool.query(sql, values);
-  await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [adminId, 'Category Created', JSON.stringify({ id, name: data.name })]);
+  await pool.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [adminId, 'Category Created', JSON.stringify({ id, name: data.name })]);
 
   return getCategoryById(id);
 }
@@ -170,7 +170,7 @@ export async function updateCategory(id, data, adminId) {
   ];
 
   await pool.query(sql, values);
-  await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [adminId, 'Category Updated', JSON.stringify({ id, name: data.name })]);
+  await pool.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [adminId, 'Category Updated', JSON.stringify({ id, name: data.name })]);
 
   return getCategoryById(id);
 }
@@ -189,12 +189,12 @@ export async function deleteCategory(id, adminId) {
   }
 
   await pool.query('UPDATE categories SET deleted_at = NOW(), updated_by = ? WHERE id = ?', [adminId, id]);
-  await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [adminId, 'Category Deleted', JSON.stringify({ id, name: current.name })]);
+  await pool.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [adminId, 'Category Deleted', JSON.stringify({ id, name: current.name })]);
 }
 
 export async function updateCategoryStatus(id, status, adminId) {
   await pool.query('UPDATE categories SET status = ?, updated_by = ? WHERE id = ?', [status, adminId, id]);
-  await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [adminId, 'Category Status Changed', JSON.stringify({ id, status })]);
+  await pool.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [adminId, 'Category Status Changed', JSON.stringify({ id, status })]);
 }
 
 export async function bulkUpdateCategoryOrder(updates, adminId) {
@@ -205,7 +205,7 @@ export async function bulkUpdateCategoryOrder(updates, adminId) {
     for (const update of updates) {
       await connection.query('UPDATE categories SET display_order = ?, updated_by = ? WHERE id = ?', [update.display_order, adminId, update.id]);
     }
-    await connection.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [adminId, 'Category Bulk Reorder', JSON.stringify({ count: updates.length })]);
+    await connection.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [adminId, 'Category Bulk Reorder', JSON.stringify({ count: updates.length })]);
     await connection.commit();
   } catch (err) {
     await connection.rollback();

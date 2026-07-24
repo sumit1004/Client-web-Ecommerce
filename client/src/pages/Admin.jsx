@@ -1,12 +1,26 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Boxes, Image, Lock, LogOut, Settings, Upload, PlusCircle, FileSpreadsheet, Globe, AlertCircle, RefreshCw } from 'lucide-react';
-import { Route, Routes, Link, useNavigate, useLocation } from 'react-router-dom';
+import { BarChart3, Boxes, Image, Lock, LogOut, Settings, Upload, PlusCircle, FileSpreadsheet, Globe, AlertCircle, RefreshCw, Mail, Activity } from 'lucide-react';
+import { Route, Routes, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Seo } from '../components/ui/Seo.jsx';
 import { useAuth } from '../context/AppProviders.jsx';
 import { apiClient } from '../services/apiClient.js';
 import { Button } from '../components/ui/Button.jsx';
 import { CategoriesList } from './admin/CategoriesList.jsx';
 import { CategoryForm } from './admin/CategoryForm.jsx';
+import { ProductsList } from './admin/products/ProductsList.jsx';
+import { ProductForm } from './admin/products/ProductForm.jsx';
+import { MediaLibrary } from './admin/media/MediaLibrary.jsx';
+import { BulkImport } from './admin/import/BulkImport.jsx';
+import { AdminProfile } from './admin/profile/AdminProfile.jsx';
+import { ContactInbox } from './admin/contacts/ContactInbox.jsx';
+import { ActivityLogs } from './admin/logs/ActivityLogs.jsx';
+import { NotificationBell } from '../components/ui/NotificationBell.jsx';
+import { SettingsLayout } from './admin/settings/SettingsLayout.jsx';
+import { BusinessSettings } from './admin/settings/BusinessSettings.jsx';
+import { SocialMediaSettings } from './admin/settings/SocialMediaSettings.jsx';
+import { SeoSettings } from './admin/settings/SeoSettings.jsx';
+import { HomepageCms } from './admin/settings/HomepageCms.jsx';
+import { SystemSettings } from './admin/settings/SystemSettings.jsx';
 
 export default function Admin() {
   const auth = useAuth();
@@ -62,6 +76,8 @@ export default function Admin() {
         <Link to="/admin/categories" className={useLocation().pathname.includes('/categories') ? 'active' : ''}><Boxes size={18} /> Categories</Link>
         <Link to="/admin/import"><Upload size={18} /> Bulk Import</Link>
         <Link to="/admin/media"><Image size={18} /> Media Library</Link>
+        <Link to="/admin/contacts"><Mail size={18} /> Contacts</Link>
+        <Link to="/admin/logs"><Activity size={18} /> Activity Logs</Link>
         <Link to="/admin/settings"><Settings size={18} /> Settings</Link>
       </aside>
       <section>
@@ -71,7 +87,10 @@ export default function Admin() {
             <p>Signed in as {auth.admin?.name || 'Admin'} • {new Date().toLocaleDateString()}</p>
           </div>
           <div className="admin-actions">
-            <span><Lock size={16} /> Protected dashboard</span>
+            <NotificationBell />
+            <Link to="/admin/profile" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: 'inherit' }}>
+              <Lock size={16} /> Profile & Security
+            </Link>
             <button onClick={logout}><LogOut size={16} /> Logout</button>
           </div>
         </div>
@@ -168,6 +187,22 @@ export default function Admin() {
           <Route path="/categories" element={<CategoriesList />} />
           <Route path="/categories/create" element={<CategoryForm />} />
           <Route path="/categories/edit/:id" element={<CategoryForm />} />
+          <Route path="/products" element={<ProductsList />} />
+          <Route path="/products/create" element={<ProductForm />} />
+          <Route path="/products/edit/:id" element={<ProductForm />} />
+          <Route path="/media" element={<MediaLibrary />} />
+          <Route path="/import" element={<BulkImport />} />
+          <Route path="/contacts" element={<ContactInbox />} />
+          <Route path="/logs" element={<ActivityLogs />} />
+          <Route path="/profile" element={<AdminProfile />} />
+          <Route path="/settings" element={<SettingsLayout />}>
+            <Route index element={<Navigate to="business" replace />} />
+            <Route path="business" element={<BusinessSettings />} />
+            <Route path="social" element={<SocialMediaSettings />} />
+            <Route path="seo" element={<SeoSettings />} />
+            <Route path="homepage" element={<HomepageCms />} />
+            <Route path="system" element={<SystemSettings />} />
+          </Route>
         </Routes>
       </section>
     </main>

@@ -1,4 +1,4 @@
-import { ArrowDown, Award, Headphones, MessageCircle, Phone, ShieldCheck, Sparkles, Store } from 'lucide-react';
+import { ArrowDown, MessageCircle, Phone, Star, Store, Truck } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CategoryCard } from '../components/categories/CategoryCard.jsx';
@@ -7,13 +7,15 @@ import { QuickViewModal } from '../components/products/QuickViewModal.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { ProductSkeletonGrid } from '../components/ui/Skeleton.jsx';
 import { Seo } from '../components/ui/Seo.jsx';
-import { business, heroImage } from '../constants/store.js';
-import { useCategories, useProducts } from '../hooks/useCatalog.js';
+import { useSettings } from '../context/AppProviders.jsx';
+import { useHomepageSettings, useCategoryTree, useAsyncCatalog } from '../hooks/useCatalog.js';
+import { catalogService } from '../services/catalogService.js';
 
 export default function Landing() {
-  const { data: categoryData } = useCategories({ show_on_homepage: true });
-  const { loading, data: productData } = useProducts({ featured: true });
-  const categories = categoryData || [];
+  const { business } = useSettings();
+  const { data: homepageSettings } = useHomepageSettings();
+  const { data: categories } = useCategoryTree();
+  const { loading, data: productData } = useAsyncCatalog(() => catalogService.getProducts({ featured: true }));
   const products = productData || [];
   const [quickView, setQuickView] = useState(null);
 
@@ -23,12 +25,18 @@ export default function Landing() {
       <section className="hero">
         <div className="hero-copy reveal">
           <span className="eyebrow">Trusted Since 1964</span>
-          <h1>Premium Fashion Since 1964</h1>
-          <p>Discover timeless fashion for Men, Women and Kids from Pasand Showroom. Trusted by generations and now available online with easy WhatsApp ordering.</p>
-          <div className="hero-actions">
-            <Button as={Link} to="/products">Explore Collection</Button>
-            <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp}`}><MessageCircle size={18} /> Shop on WhatsApp</Button>
-            <Button as="a" variant="ghost" href={`tel:${business.phone}`}><Phone size={18} /> Call</Button>
+          <div className="hero-content">
+            <h1>{homepageSettings?.hero_title || `Welcome to ${business?.storeName || 'Our Store'}`}</h1>
+            <p>{homepageSettings?.hero_subtitle || 'Discover our latest collection of premium fashion.'}</p>
+            <div className="hero-actions">
+              <Button as={Link} to="/products">Shop Collection</Button>
+              {business?.whatsapp ? (
+                <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /> Shop on WhatsApp</Button>
+              ) : (
+                <Button variant="outline" disabled title="WhatsApp number is not configured"><MessageCircle size={18} /> Shop on WhatsApp</Button>
+              )}
+              {business?.phone && <Button as="a" variant="ghost" href={`tel:${business.phone}`}><Phone size={18} /> Call</Button>}
+            </div>
           </div>
           <div className="hero-stats">
             <strong>60+<span>Years of Trust</span></strong>
@@ -38,7 +46,7 @@ export default function Landing() {
           </div>
         </div>
         <div className="hero-image reveal">
-          <img src={heroImage} alt="Premium fashion model wearing a modern collection" />
+          <img src={homepageSettings?.hero_image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=85'} alt="Premium fashion model wearing a modern collection" />
         </div>
         <a className="scroll-indicator" href="#categories" aria-label="Scroll to categories"><ArrowDown size={18} /></a>
       </section>
@@ -50,7 +58,7 @@ export default function Landing() {
           <Link to="/categories">View all</Link>
         </div>
         <div className="category-grid swipe-row">
-          {categories.map((category) => <CategoryCard key={category.slug} category={category} />)}
+          {(categories || []).map((category) => <CategoryCard key={category.slug} category={category} />)}
         </div>
       </section>
 
@@ -65,10 +73,10 @@ export default function Landing() {
 
       <section className="section value-grid">
         {[
-          [Sparkles, 'Premium Quality', 'Carefully selected fabrics, finishes and fits.'],
-          [ShieldCheck, 'Trusted Since 1964', 'Decades of offline trust brought online.'],
-          [Award, 'Affordable Pricing', 'Premium style without inflated marketplace pricing.'],
-          [Headphones, 'Quick WhatsApp Support', 'Talk directly with the store before ordering.']
+          [Star, 'Premium Quality', 'Carefully selected fabrics, finishes and fits.'],
+          [Truck, 'Trusted Since 1964', 'Decades of offline trust brought online.'],
+          [Store, 'Affordable Pricing', 'Premium style without inflated marketplace pricing.'],
+          [MessageCircle, 'Quick WhatsApp Support', 'Talk directly with the store before ordering.']
         ].map(([Icon, title, text]) => (
           <article className="value-card reveal" key={title}><Icon size={28} /><h3>{title}</h3><p>{text}</p></article>
         ))}
@@ -80,13 +88,6 @@ export default function Landing() {
           <span className="eyebrow">Our Legacy</span>
           <h2>Serving generations, now with a digital showroom.</h2>
           <p>Pasand Showroom has been serving customers since 1964 with premium quality clothing for every generation. Our mission is to bring trusted fashion to customers through a modern digital shopping experience.</p>
-          <div className="timeline">
-            <span><b>Established in 1964</b></span>
-            <span><b>Trusted for generations</b></span>
-            <span><b>Family business</b></span>
-            <span><b>Premium clothing showroom</b></span>
-            <span><b>Customer-first approach</b></span>
-          </div>
         </div>
       </section>
 
@@ -95,9 +96,22 @@ export default function Landing() {
           <span className="eyebrow">Social</span>
           <h2>Follow the new collection drops.</h2>
         </div>
-        <div className="social-grid">
-          {['Instagram', 'Facebook', 'YouTube', 'WhatsApp'].map((item, index) => (
-            <a key={item} href={index === 3 ? `https://wa.me/${business.whatsapp}` : '#'}><Store size={24} /><strong>{item}</strong><span>Open</span></a>
+        <div className="contact-grid">
+          {['Visit Store', 'Call Us', 'Email Us', 'WhatsApp'].map((item, index) => (
+            <a 
+              key={item} 
+              href={
+                index === 0 && business?.mapsUrl ? business.mapsUrl :
+                index === 1 && business?.phone ? `tel:${business.phone}` :
+                index === 2 && business?.email ? `mailto:${business.email}` :
+                index === 3 && business?.whatsapp ? `https://wa.me/${business.whatsapp.replace(/\D/g, '')}` : 
+                '#'
+              }
+              target={index === 0 || index === 3 ? '_blank' : undefined}
+              rel={index === 0 || index === 3 ? 'noopener noreferrer' : undefined}
+            >
+              <Store size={24} /><strong>{item}</strong><span>Open</span>
+            </a>
           ))}
         </div>
       </section>

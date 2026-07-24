@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS pending_images (
 
 CREATE TABLE IF NOT EXISTS failed_imports (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  row_number INT NOT NULL,
+  `row_number` INT NOT NULL,
   raw_data JSON,
   error_message TEXT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP

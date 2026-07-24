@@ -8,7 +8,8 @@ export function errorHandler(error, _req, res, _next) {
   const status = error.status || 500;
   res.status(status).json({
     success: false,
-    message: status === 500 ? 'Something went wrong. Please try again.' : error.message,
+    message: error.message || 'Something went wrong. Please try again.',
+    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     errors: error.errors || []
   });
 }

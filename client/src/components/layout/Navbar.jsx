@@ -1,21 +1,21 @@
-import { ChevronDown, Menu, Phone, Search, ShoppingBag } from 'lucide-react';
+import { ChevronDown, Phone, Search, ShoppingBag } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
-import { business } from '../../constants/store.js';
-import { useCart, useSearch } from '../../context/AppProviders.jsx';
-import { useCategories } from '../../hooks/useCatalog.js';
+import { useCart, useSearch, useSettings } from '../../context/AppProviders.jsx';
+import { useCategoryTree } from '../../hooks/useCatalog.js';
 import { Button } from '../ui/Button.jsx';
 
 export function Navbar() {
   const cart = useCart();
   const search = useSearch();
-  const { data } = useCategories();
+  const { business } = useSettings();
+  const { data } = useCategoryTree();
   const categories = data || [];
 
   return (
     <header className="navbar">
-      <Link className="logo" to="/" aria-label={`${business.name} home`}>
-        <span>{business.shortName}</span>
-        <small>Fashion Store</small>
+      <Link className="logo" to="/" aria-label={`${business?.storeName || 'Store'} home`}>
+        <span>{business?.storeName || 'Store'}</span>
+        <small>{business?.tagline || 'Store'}</small>
       </Link>
 
       <nav className="desktop-nav" aria-label="Primary navigation">
@@ -26,7 +26,9 @@ export function Navbar() {
             {categories.map((category) => (
               <div key={category.slug}>
                 <h3>{category.name}</h3>
-                {category.children.map((child) => <Link key={child} to={`/category/${category.slug}`}>{child}</Link>)}
+                {(category.children || []).map((child) => (
+                  <Link key={child.slug} to={`/category/${child.slug}`}>{child.name}</Link>
+                ))}
               </div>
             ))}
           </div>
@@ -38,12 +40,15 @@ export function Navbar() {
 
       <div className="nav-actions">
         <button className="icon-button" aria-label="Open search" onClick={() => search.setOpen(true)}><Search size={20} /></button>
-        <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp}`}>WhatsApp</Button>
-        <a className="icon-button" aria-label="Call store" href={`tel:${business.phone}`}><Phone size={19} /></a>
+        {business?.whatsapp && <Button as="a" variant="outline" href={`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">WhatsApp</Button>}
+        {business?.phone && <a className="icon-button" aria-label="Call store" href={`tel:${business.phone}`}><Phone size={19} /></a>}
+        <Link className="icon-button cart-dot" aria-label="Open cart" to="/cart">
+          <ShoppingBag size={20} />
+          {cart.count > 0 && <span>{cart.count}</span>}
+        </Link>
       </div>
 
       <div className="mobile-header-actions">
-        <button className="icon-button" aria-label="Open menu"><Menu size={20} /></button>
         <button className="icon-button" aria-label="Open search" onClick={() => search.setOpen(true)}><Search size={20} /></button>
         <Link className="icon-button cart-dot" aria-label="Open cart" to="/cart">
           <ShoppingBag size={20} />

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export function CategoryCard({ category }) {
   return (
     <Link className="category-card reveal" to={`/category/${category.slug}`}>
-      <img src={category.image} alt={`${category.name} collection`} loading="lazy" />
+      <img src={category.image_url || category.image} alt={`${category.name} collection`} loading="lazy" />
       <span className="category-overlay" />
       <div>
         <h3>{category.name}</h3>

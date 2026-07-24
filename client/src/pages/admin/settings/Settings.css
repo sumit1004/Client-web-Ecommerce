@@ -1,0 +1,72 @@
+.settings-page .settings-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.settings-sidebar {
+  width: 250px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 0;
+  flex-shrink: 0;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.settings-nav a:hover {
+  background: var(--secondary-bg);
+}
+
+.settings-nav a.active {
+  background: rgba(200, 155, 60, 0.05);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+.settings-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.settings-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  .settings-page .settings-container {
+    flex-direction: column;
+  }
+  .settings-sidebar {
+    width: 100%;
+  }
+}

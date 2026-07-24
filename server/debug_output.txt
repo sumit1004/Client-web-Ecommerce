@@ -1,0 +1,15 @@
+ALL TESTS PASSED
+{
+  "reqOnly": {
+    "id": "1cd624f4-1a39-49aa-9ac5-e3c0c7657621",
+    "slug": "req-only-product"
+  },
+  "optFields": {
+    "id": "66e645c6-743c-463d-878c-5ecb315df0ae",
+    "slug": "opt-fields-product"
+  },
+  "withImages": {
+    "id": "03205265-c559-4e3c-8a17-16214704fa99",
+    "slug": "images-product"
+  }
+}

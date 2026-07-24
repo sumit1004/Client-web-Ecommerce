@@ -22,6 +22,14 @@ export function useCategories(params = {}) {
   return useAsyncCatalog(() => catalogService.getCategories(params), [JSON.stringify(params)]);
 }
 
+export function useCategoryTree() {
+  return useAsyncCatalog(() => catalogService.getCategoryTree(), []);
+}
+
 export function useProducts(params = {}) {
   return useAsyncCatalog(() => catalogService.getProducts(params), [JSON.stringify(params)]);
+}
+
+export function useHomepageSettings() {
+  return useAsyncCatalog(() => catalogService.getHomepageSettings(), []);
 }

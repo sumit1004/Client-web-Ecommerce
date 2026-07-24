@@ -10,10 +10,15 @@ import { apiLimiter } from './middleware/rateLimit.js';
 import authRoutes from './routes/auth.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import contactRoutes from './routes/contact.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import activityRoutes from './routes/activity.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
 import productRoutes from './routes/product.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import mediaRoutes from './routes/media.routes.js';
+import importRoutes from './routes/import.routes.js';
 
 const app = express();
 
@@ -42,11 +47,16 @@ app.use('/api', apiLimiter);
 app.get('/api/health', (_req, res) => res.json({ success: true, message: 'API healthy', data: { service: 'Pasand Showroom' } }));
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/media', mediaRoutes);
+app.use('/api/import', importRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

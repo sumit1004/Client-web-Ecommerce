@@ -30,7 +30,7 @@ export async function logout(req, res) {
     if (token) {
       const decoded = jwt.verify(token, env.jwtSecret);
       if (decoded && decoded.id) {
-        await pool.query('INSERT INTO activity_logs (admin_id, action, metadata) VALUES (?, ?, ?)', [decoded.id, 'Logout', JSON.stringify({ ip: 'server' })]);
+        await pool.query('INSERT INTO activity_logs (id, admin_id, action, metadata) VALUES (UUID(), ?, ?, ?)', [decoded.id, 'Logout', JSON.stringify({ ip: 'server' })]);
       }
     }
   } catch (err) {
